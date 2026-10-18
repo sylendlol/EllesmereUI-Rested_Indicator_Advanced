@@ -1,0 +1,11 @@
+## Interface: 120000, 120001, 120005, 120007, 120100, 120105, 16001
+## Title: EllesmereUI |cff0cd29fRested Style|r
+## Notes: Selectable, customizable styles for EllesmereUI's Rested Indicator (Blizzard animated, Classic Badge, Floating Letters, Icon Square). Settings: Quality of Life > QoL > Rested Indicator cog. /eurest toggles a preview.
+## Author: Custom
+## Version: 1.0.0
+## Dependencies: EllesmereUI, EllesmereUIUnitFrames
+## SavedVariables: EllesmereUI_RestedStyleDB
+## IconTexture: Interface\AddOns\EllesmereUI\media\eg-logo.tga
+
+RestedStyle.lua
+RestedStyle_Options.lua
