@@ -9,7 +9,7 @@ if EUI_CLIENT_BLOCKED then return end -- pre-12.1 client failsafe (EllesmereUI_C
 --    * We hook that FontString's Show/Hide/SetShown/SetPoint, make it
 --      invisible (alpha 0) and mirror its visibility on our own frame.
 --
---  Styles (EllesmereUI_RestedStyleDB.style):
+--  Styles (EllesmereUIDB.restedStyle.style):
 --    eui      - EllesmereUI's original "ZZZ" text (nothing changed)
 --    blizzard - Blizzard's animated rest flipbook (read from the client's own
 --               PlayerFrame when present; static UI-StateIcon as fallback)
@@ -136,9 +136,28 @@ local STATE_ICON = "Interface\\CharacterFrame\\UI-StateIcon"
 -------------------------------------------------------------------------------
 --  Settings
 -------------------------------------------------------------------------------
+-- Settings live in EllesmereUIDB.restedStyle (account-wide), so EllesmereUI's
+-- full-account export / import (ExportFullAccountData copies every top-level
+-- EllesmereUIDB key) carries them. Version 1.0.0 kept them in the add-on's own
+-- EllesmereUI_RestedStyleDB: copied over once, the old table is left as backup.
+local function DeepCopy(v)
+    if type(v) ~= "table" then return v end
+    local t = {}
+    for k, x in pairs(v) do t[k] = DeepCopy(x) end
+    return t
+end
+
 function RS.DB()
-    if type(EllesmereUI_RestedStyleDB) ~= "table" then EllesmereUI_RestedStyleDB = {} end
-    return EllesmereUI_RestedStyleDB
+    if type(EllesmereUIDB) ~= "table" then EllesmereUIDB = {} end
+    local d = EllesmereUIDB.restedStyle
+    if type(d) ~= "table" then
+        d = {}
+        if type(EllesmereUI_RestedStyleDB) == "table" then
+            for k, v in pairs(EllesmereUI_RestedStyleDB) do d[k] = DeepCopy(v) end
+        end
+        EllesmereUIDB.restedStyle = d
+    end
+    return d
 end
 
 function RS.Get(k)
@@ -641,7 +660,8 @@ SlashCmdList.EUIRESTED = function(msg)
         print(p .. "flipbook atlas=" .. tostring(i.atlas) .. " hasAtlas=" .. tostring(i.hasAtlas)
             .. (" grid=%dx%d frames=%d ratio=%.2f"):format(i.rows, i.cols, i.frames, i.ratio or 0))
     elseif msg == "reset" then
-        EllesmereUI_RestedStyleDB = {}
+        if type(EllesmereUIDB) ~= "table" then EllesmereUIDB = {} end
+        EllesmereUIDB.restedStyle = {}
         RS.Apply()
         print("|cff0cd29fRested Style|r settings reset")
     end
